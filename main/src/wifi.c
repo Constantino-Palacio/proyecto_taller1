@@ -62,55 +62,46 @@ int intensidad(){
    return a;
 
 }
+#define JSON_MAX_SIZE 150
+uint8_t dato;
 int leerJson(){
    
    char* palabra =  (char *) malloc(150 * sizeof(char));  
 
-   uint16_t size_json = 150;
-   uint8_t dato  = 0;
-   uint8_t enter = '\n' ;
    i = 0;
    //Leo json de la uart
-   uartWriteString( UART_USB, "\r\n" );
-   
-
-   while( (i < size_json) && (dato != enter)){
+   while( (i < JSON_MAX_SIZE) && (dato != '\n')){
       if(uartReadByte( UART_232, &dato)){
          palabra[i]=dato;
          //uartWriteByte( UART_USB, dato );
-
          i++;
       }
    }
-
-   
    
    //Verificación de error
-   if((i < size_json)){
+   if((i < JSON_MAX_SIZE)){
       palabra[i-1]='\0';
       cJSON_Delete(json);
       json = cJSON_Parse(palabra);
-      /*char *string = cJSON_Print(json);
-      uartWriteString( UART_USB, "json" );
-      uartWriteString( UART_USB,  string);
-      uartWriteString( UART_USB, "\r\n" );*/
       
       const char *error_ptr = cJSON_GetErrorPtr();
-      if ((error_ptr != NULL || json != NULL))
+      if ((error_ptr != NULL || json != NULL)){
          free(palabra);  
-         return 1;
+         return 0;
+      }
    }
    free(palabra);  
    //En caso de error retorno false
    return 0;
 }
+
 int imprimirJson(){
-   
    char *string = cJSON_Print(json);
    uartWriteString( UART_USB,  string);
    free(string);
    return 1;
 }
+
 int wifiSetup(){
    // ------------- INICIALIZACIONES -------------
 
@@ -120,8 +111,8 @@ int wifiSetup(){
    uartConfig( UART_232, 9600 );
    
    char miTexto[] = "Setup wifi config...\r\n";
-   uartWriteString( UART_USB, miTexto ); // Envi?a "Hola de nuevo\r\n"
-   uartWriteString( UART_USB, "\r\n" ); // Enviar un Enter
+   uartWriteString( UART_USB, miTexto ); 
+   uartWriteString( UART_USB, "\r\n" );
 }
 
 

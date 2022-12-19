@@ -72,41 +72,14 @@ int main(void){
                Si es '0' u 'OFF', ignorar la interfaz web y hacer caso a la botonera.
          */
          mode_status = mode_toggle();
+         
          if (mode_status) {
             if(leerJson()){
                imprimirJson();
-               
-               if(1){  //debug
-               if(luz_1()){
-                   gpioWrite(RELAY_ST_OUT,ON);
-               }
-               else{
-                   gpioWrite(RELAY_ST_OUT,OFF);
-               }
-               if(led()){
-                  led_on();
-                  int a = intensidad();
-                  printf("intensidad %d",a);
-                  led_bright(a);
-                  gpioWrite(LED_ST_OUT,ON);
-               }else{
-                  led_off();
-                  gpioWrite(LED_ST_OUT, OFF);
-               }
-               if(sensor_luminosidad()){
-                  gpioWrite(LUX_ST_OUT,ON);
-               }else{
-                  gpioWrite(LUX_ST_OUT, OFF);
-               }
-               if(sensor_movimiento()){
-                   pir_on();
-               }else{
-                   pir_off();
-                  
-               }
-               printf("final");}
+               ledSetStatus();
+               luxSetStatus();
+               PIRSetStatus();
             }
-            //led_bright(led_value())
             if ((luz_1()) || (lux_read()<MAX_LUX) || (pir_read())) relay_on(); else relay_off();
          } else {
             // leer entradas de control de los sensores
@@ -129,4 +102,30 @@ int main(void){
    }
 
    return 0 ;
+}
+void luxSetStatus(){
+   if(sensor_luminosidad()){
+      gpioWrite(LUX_ST_OUT,ON);
+   }else{
+      gpioWrite(LUX_ST_OUT, OFF);
+   }
+}
+void PIRSetStatus(){
+   if(sensor_movimiento()){
+       pir_on();
+   }else{
+       pir_off();
+   }
+}
+void ledSetStatus(){
+   if(led()){
+      led_on();
+      int a = intensidad();
+      //printf("intensidad %d",a);
+      led_bright(a);
+      gpioWrite(LED_ST_OUT,ON);
+   }else{
+      led_off();
+      gpioWrite(LED_ST_OUT, OFF);
+   }
 }
